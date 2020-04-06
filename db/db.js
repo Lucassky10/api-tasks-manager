@@ -71,7 +71,7 @@ module.exports = {
             console.log(data);
             db.query('INSERT INTO tasks (title, beginDate, endDate, status, tags) VALUES (?, ?, ?, ?, ?)', data, 
             (err, results) => {
-                if(results.affectedRows !== 0) {
+                if(results !== undefined && results.affectedRows !== 0) {
                     resolve(results.insertId);
                 } else {
                     reject(new Error(err));
@@ -90,14 +90,9 @@ module.exports = {
             let data = [task.title, task.beginDate, task.endDate, task.status, JSON.stringify(task.tags), id];
             db.query('UPDATE tasks SET title=?, beginDate=?, endDate=?, status=?, tags=? WHERE id=?', data, 
             (err, results) => {
-                console.log(results)
         
-                if(results === undefined && results.affectedRows !== undefined) {
+                if(results !== undefined && results.affectedRows !== 0) {
                     resolve();
-                    connection.end((err) => {
-                        if(err) throw err;
-                        else console.log("Database disconnected");
-                    })
                 } else {
                     reject(new Error(err));
                 }
