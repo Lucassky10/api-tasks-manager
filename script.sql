@@ -17,16 +17,6 @@ CREATE TABLE `tags` (
   `name` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `tags`
---
-
-INSERT INTO `tags` (`name`) VALUES
-('errt'),
-('errt'),
-('Ouf'),
-('NewOne');
-
 -- --------------------------------------------------------
 
 --
@@ -43,30 +33,10 @@ CREATE TABLE `tasks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `tasks`
---
-
-INSERT INTO `tasks` (`id`, `title`, `beginDate`, `endDate`, `status`, `tags`) VALUES
-(48, 'Task', '2020-04-02', '2020-04-25', 'UNE TACHE EST REQUISE', '[\"NewOne\"]'),
-(58, 'newTask', '11/23/1967', '11/23/2020', 'ANNULEE', '[\"school\", \"deadline\", \"project\"]'),
-(64, 'newTask', '11/23/1967', '11/23/2020', 'ACHEVEE', '[\"school\", \"deadline\", \"project\"]'),
-(65, 'newTask', '11/23/1967', '11/23/2020', 'ACHEVEE', '[\"school\", \"deadline\", \"project\"]'),
-(69, 'My new task', '2020-04-08', '2020-04-26', 'EN COURS', '[\"School\", \"Deadline\", \"Three\"]'),
-(70, 'My new task', '2020-04-01', '2020-04-25', 'EN COURS', '[\"School\", \"Deadline\", \"Three\"]');
-
---
--- Indexes for dumped tables
---
-
---
 -- Indexes for table `tasks`
 --
 ALTER TABLE `tasks`
   ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
 
 --
 -- AUTO_INCREMENT for table `tasks`
