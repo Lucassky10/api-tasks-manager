@@ -1,33 +1,35 @@
 var express = require('express');
+var cors = require('cors');
 var session = require('cookie-session'); // Charge le middleware de sessions
 var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
+var router = express.Router();
 var app = express();
 var port = 8090;
-var payloadChecker = require('payload-validator');
-const { addTask, updateTask, deleteTask, getTask, getTasks } = require('./db/db');
+const { addTask, updateTask, deleteTask, getTask, getTasks, addTag, getTags } = require('./db/db');
 
 
-var expectedPayload = {
-    "title": "newTask",
-    "beginDate": "",
-    "endDate": "11/23/2020",
-    "status": "ENDED",
-    "tags": ["school", "deadline", "project"]
-};
+app.use(cors());
+app.use('/api', router);
 
 
-app.use(require('body-parser').json())
+router.use(require('body-parser').json())
 .use(require('body-parser').urlencoded({ extended: true }))
 
 .get('/tasks', (req, res) => {
     getTasks().then(tasks => {
+        for(let i = 0; i<tasks.length; i++) {
+            tasks[i].tags = JSON.parse(tasks[i].tags);
+        }
         res.json(tasks);
+    }).catch(err => {
+        throw new Error(err);
     })
 })
 
 .get('/task/:id', (req, res) => {
     let id = req.params.id;
     getTask(id).then(task => {
+        task[0].tags = JSON.parse(task[0].tags);
         res.json(task);
     }).catch(() => {
         res.status(404);
@@ -79,6 +81,7 @@ app.use(require('body-parser').json())
 .delete('/task/:id', (req, res) => {
 
     let id = req.params.id;
+
     
     getTask(id).then(()=>{
         deleteTask(id).then(()=>{
@@ -97,6 +100,24 @@ app.use(require('body-parser').json())
     });
 })
 
+// Tags
+
+.get('/tags', (req, res) => {
+    getTags().then((tags) => {
+        res.json(tags);
+    }).catch((err)=>{
+        res.json(err);
+    })
+})
+
+.post('/tag', (req, res) => {
+    addTag(req.body.name).then(()=>{
+        res.end();
+    }).catch((err)=>{
+        res.json(err);
+    });
+})
+
 // Not supported methods
 
 .get('/task', (_req, res) => {
@@ -105,8 +126,8 @@ app.use(require('body-parser').json())
 
 .post('/task/:id', (_req, res) => {
     res.json({"message" : "POST not supported"});
-})
+});
 
-.listen(port, () => {
+app.listen(port, () => {
     console.log('Listening on ' + port);
 });

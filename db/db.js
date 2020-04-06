@@ -1,6 +1,8 @@
+var connection = undefined;
+
 function getConnection() {
     let mysql = require('mysql')
-    let connection = mysql.createConnection({
+    connection = mysql.createConnection({
         host:'localhost',
         port: '8889',
         user:'root',
@@ -16,6 +18,13 @@ function getConnection() {
     return connection;
 }
 
+function disconnect() {
+    connection.end((err) => {
+        if(err) throw err;
+        else console.log("Database disconnected");
+    })
+}
+
 module.exports = {
 
     //GET
@@ -29,8 +38,11 @@ module.exports = {
                     reject(new Error(err));
                 } else {
                     resolve(results);
+                  
                 }
             });
+            disconnect();
+        
         });
     },
 
@@ -42,9 +54,12 @@ module.exports = {
                 if(results === undefined) {
                     reject(new Error(err))
                 } else {
+                    console.log(results);
+
                     resolve(results);
                 }
             })
+            disconnect();
         })
     },
 
@@ -53,6 +68,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             let db = getConnection();
             let data = [task.title, task.beginDate, task.endDate, task.status, JSON.stringify(task.tags)];
+            console.log(data);
             db.query('INSERT INTO tasks (title, beginDate, endDate, status, tags) VALUES (?, ?, ?, ?, ?)', data, 
             (err, results) => {
                 if(results.affectedRows !== 0) {
@@ -61,6 +77,7 @@ module.exports = {
                     reject(new Error(err));
                 }
             });
+            disconnect();
         });
     },
 
@@ -73,12 +90,23 @@ module.exports = {
             let data = [task.title, task.beginDate, task.endDate, task.status, JSON.stringify(task.tags), id];
             db.query('UPDATE tasks SET title=?, beginDate=?, endDate=?, status=?, tags=? WHERE id=?', data, 
             (err, results) => {
-                if(results.affectedRows !== 0) {
+                console.log(results)
+        
+                if(results === undefined && results.affectedRows !== undefined) {
                     resolve();
+                    connection.end((err) => {
+                        if(err) throw err;
+                        else console.log("Database disconnected");
+                    })
                 } else {
                     reject(new Error(err));
                 }
+
+                
             });
+            disconnect();
+
+            
         })
     },
 
@@ -96,8 +124,46 @@ module.exports = {
                     reject(new Error(err));
                 }
             });
+            disconnect();
+
 
         });
+    },
+
+    getTags: () => {
+
+        return new Promise((resolve, reject) => {
+
+            let db = getConnection();
+            let data = [];
+            db.query('SELECT * FROM tags', data,
+            (err, results) => {
+                if(results === undefined || results.length === 0) {
+                    reject(new Error(err));
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+            disconnect();
+    },
+
+    addTag: (name) => {
+
+        return new Promise((resolve, reject)=>{
+            let db = getConnection();
+            let data = [name];
+            db.query('INSERT INTO tags VALUES (?)', data, 
+            (err, results) => {
+                if(results.affectedRows !== 0) {
+                    resolve();
+                } else {
+                    reject(new Error(err));
+                }
+            });
+            disconnect();
+        });
+
     }
 
 }
